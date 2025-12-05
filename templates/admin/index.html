@@ -1,0 +1,540 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    /* Enhanced Dashboard Styles */
+    :root {
+        --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+        --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        --gradient-info: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+        --gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+        --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        --hover-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        --glow-primary: rgba(99, 102, 241, 0.4);
+        --glow-success: rgba(16, 185, 129, 0.4);
+        --glow-warning: rgba(245, 158, 11, 0.4);
+        --glow-info: rgba(59, 130, 246, 0.4);
+        --glass-bg: rgba(30, 41, 59, 0.8);
+        --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Hero Section */
+    .admin-hero {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 3rem;
+        border-radius: 24px;
+        margin-bottom: 2rem;
+        box-shadow: var(--card-shadow), 0 0 60px var(--glow-primary);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--glass-border);
+    }
+
+    .admin-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background:
+            radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .admin-hero::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 50%;
+        height: 200%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+        transform: rotate(15deg);
+        pointer-events: none;
+    }
+
+    .admin-hero h1 {
+        margin: 0 0 0.75rem 0;
+        font-size: 2.25rem;
+        font-weight: 800;
+        position: relative;
+        z-index: 1;
+        letter-spacing: -0.5px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .admin-hero p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 1.125rem;
+        position: relative;
+        z-index: 1;
+        font-weight: 500;
+    }
+
+    .admin-hero .hero-icon {
+        font-size: 6rem;
+        position: absolute;
+        right: 3rem;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.25;
+        filter: blur(1px);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 1.75rem;
+        box-shadow: var(--card-shadow);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: var(--hover-shadow);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-card.applications::before {
+        background: var(--gradient-info);
+    }
+
+    .stat-card.reviews::before {
+        background: var(--gradient-warning);
+    }
+
+    .stat-card.users::before {
+        background: var(--gradient-success);
+    }
+
+    .stat-card.notifications::before {
+        background: var(--gradient-danger);
+    }
+
+    .stat-card.applications:hover {
+        box-shadow: var(--hover-shadow), 0 0 40px var(--glow-info);
+    }
+
+    .stat-card.reviews:hover {
+        box-shadow: var(--hover-shadow), 0 0 40px var(--glow-warning);
+    }
+
+    .stat-card.users:hover {
+        box-shadow: var(--hover-shadow), 0 0 40px var(--glow-success);
+    }
+
+    .stat-card.notifications:hover {
+        box-shadow: var(--hover-shadow), 0 0 40px rgba(239, 68, 68, 0.4);
+    }
+
+    .stat-card .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .stat-card .stat-label {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #f8fafc;
+        letter-spacing: -0.5px;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .quick-actions h2 {
+        margin: 0 0 1.5rem 0;
+        font-size: 1.25rem;
+        color: #f8fafc;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 700;
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 1.125rem 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 14px;
+        color: #e2e8f0;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .action-btn:hover {
+        background: var(--gradient-primary);
+        color: white;
+        border-color: transparent;
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 24px var(--glow-primary);
+    }
+
+    .action-btn .action-icon {
+        font-size: 1.375rem;
+    }
+
+    /* Recent Activity / System Overview */
+    .recent-activity {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .recent-activity h2 {
+        margin: 0 0 1.5rem 0;
+        font-size: 1.25rem;
+        color: #f8fafc;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .activity-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .activity-list li {
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+        color: #cbd5e1;
+    }
+
+    .activity-list li:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: var(--glass-border);
+        transform: translateX(4px);
+    }
+
+    .activity-list li:last-child {
+        margin-bottom: 0;
+    }
+
+    .activity-list li strong {
+        color: #a5b4fc;
+    }
+
+    .activity-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        box-shadow: 0 0 10px currentColor;
+    }
+
+    .activity-dot.new {
+        background-color: #10b981;
+        color: #10b981;
+    }
+
+    .activity-dot.pending {
+        background-color: #f59e0b;
+        color: #f59e0b;
+    }
+
+    .activity-dot.urgent {
+        background-color: #ef4444;
+        color: #ef4444;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(-50%) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(-50%) rotate(5deg) scale(1.05);
+        }
+    }
+
+    .admin-hero,
+    .stats-grid .stat-card,
+    .quick-actions,
+    .recent-activity {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .admin-hero {
+        animation-delay: 0s;
+    }
+
+    .stats-grid .stat-card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .stats-grid .stat-card:nth-child(2) {
+        animation-delay: 0.15s;
+    }
+
+    .stats-grid .stat-card:nth-child(3) {
+        animation-delay: 0.2s;
+    }
+
+    .stats-grid .stat-card:nth-child(4) {
+        animation-delay: 0.25s;
+    }
+
+    .quick-actions {
+        animation-delay: 0.35s;
+    }
+
+    .recent-activity {
+        animation-delay: 0.45s;
+    }
+
+    .admin-hero .hero-icon {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    /* Default Django admin module styling override */
+    #content-main .module {
+        margin-top: 2rem;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .admin-hero {
+            padding: 2rem;
+            border-radius: 16px;
+        }
+
+        .admin-hero h1 {
+            font-size: 1.5rem;
+        }
+
+        .admin-hero p {
+            font-size: 1rem;
+        }
+
+        .admin-hero .hero-icon {
+            display: none;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-card {
+            padding: 1.25rem;
+        }
+
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .quick-actions,
+        .recent-activity {
+            padding: 1.5rem;
+            border-radius: 16px;
+        }
+    }
+
+    /* Back to Dashboard button */
+    .dashboard-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--gradient-primary);
+        color: white !important;
+        padding: 0.875rem 1.5rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 16px var(--glow-primary);
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px var(--glow-primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="admin-hero">
+    <span class="hero-icon">🎯</span>
+    <h1>Welcome to Grant Application Workflow</h1>
+    <p>Manage applications, reviews, users, and notifications from one central dashboard.</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <a href="{% url 'admin:applications_application_changelist' %}" class="stat-card applications">
+        <span class="stat-icon">📝</span>
+        <div class="stat-label">Applications</div>
+        <div class="stat-value">{{ app_count|default:"View All" }}</div>
+    </a>
+    <a href="{% url 'admin:reviews_reviewassignment_changelist' %}" class="stat-card reviews">
+        <span class="stat-icon">📋</span>
+        <div class="stat-label">Review Assignments</div>
+        <div class="stat-value">{{ review_count|default:"View All" }}</div>
+    </a>
+    <a href="{% url 'admin:users_user_changelist' %}" class="stat-card users">
+        <span class="stat-icon">👥</span>
+        <div class="stat-label">Users</div>
+        <div class="stat-value">{{ user_count|default:"View All" }}</div>
+    </a>
+    <a href="{% url 'admin:notifications_notification_changelist' %}" class="stat-card notifications">
+        <span class="stat-icon">🔔</span>
+        <div class="stat-label">Notifications</div>
+        <div class="stat-value">{{ notif_count|default:"View All" }}</div>
+    </a>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <h2>⚡ Quick Actions</h2>
+    <div class="actions-grid">
+        <a href="{% url 'admin:applications_application_add' %}" class="action-btn">
+            <span class="action-icon">➕</span>
+            New Application
+        </a>
+        <a href="{% url 'admin:reviews_reviewassignment_add' %}" class="action-btn">
+            <span class="action-icon">📎</span>
+            Assign Review
+        </a>
+        <a href="{% url 'admin:users_user_add' %}" class="action-btn">
+            <span class="action-icon">👤</span>
+            Add User
+        </a>
+        <a href="{% url 'admin:reviews_rubric_changelist' %}" class="action-btn">
+            <span class="action-icon">📐</span>
+            Manage Rubrics
+        </a>
+        <a href="{% url 'admin:applications_call_changelist' %}" class="action-btn">
+            <span class="action-icon">📢</span>
+            Manage Calls
+        </a>
+        <a href="/dashboard/" class="action-btn">
+            <span class="action-icon">🏠</span>
+            Go to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- System Overview -->
+<div class="recent-activity">
+    <h2>📊 System Overview</h2>
+    <ul class="activity-list">
+        <li>
+            <span class="activity-dot new"></span>
+            <span>Use the <strong>Applications</strong> section to manage grant proposals</span>
+        </li>
+        <li>
+            <span class="activity-dot pending"></span>
+            <span>Assign reviewers via <strong>Review Assignments</strong> for pending applications</span>
+        </li>
+        <li>
+            <span class="activity-dot new"></span>
+            <span>Configure scoring criteria in <strong>Rubrics</strong> and <strong>Criteria</strong></span>
+        </li>
+        <li>
+            <span class="activity-dot urgent"></span>
+            <span>Monitor <strong>COI Flags</strong> for conflict of interest declarations</span>
+        </li>
+        <li>
+            <span class="activity-dot new"></span>
+            <span>Track system <strong>Notifications</strong> for important events</span>
+        </li>
+    </ul>
+</div>
+
+{{ block.super }}
+{% endblock %}

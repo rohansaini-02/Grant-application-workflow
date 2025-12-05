@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Version History - {{ application.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Version History</h1>
+    <p style="color: #6c757d;">{{ application.title }}</p>
+
+    <div style="margin-bottom: 1rem;">
+        <a href="{% url 'applications:detail' application.pk %}" class="btn btn-primary">← Back to Application</a>
+    </div>
+
+    {% if versions %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Version</th>
+                <th>Created By</th>
+                <th>Created At</th>
+                <th>Change Summary</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for version in versions %}
+            <tr>
+                <td><strong>v{{ version.version_number }}</strong></td>
+                <td>{{ version.created_by.get_full_name }}</td>
+                <td>{{ version.created_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ version.change_summary|default:"No summary" }}</td>
+                <td>
+                    <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;"
+                        onclick="toggleVersion({{ version.version_number }})">View Details</button>
+                </td>
+            </tr>
+            <tr id="version-{{ version.version_number }}" style="display: none;">
+                <td colspan="5" style="background-color: #f8f9fa; padding: 1rem;">
+                    <h4>Version {{ version.version_number }} Details</h4>
+                    <div style="margin-top: 0.5rem;">
+                        <strong>Title:</strong> {{ version.data.title|default:"N/A" }}<br>
+                        <strong>Abstract:</strong><br>
+                        <p style="white-space: pre-wrap; margin-top: 0.5rem;">{{ version.data.abstract|default:"N/A" }}
+                        </p>
+                        {% if version.data.methodology %}
+                        <strong>Methodology:</strong><br>
+                        <p style="white-space: pre-wrap; margin-top: 0.5rem;">{{ version.data.methodology }}</p>
+                        {% endif %}
+                        {% if version.data.timeline %}
+                        <strong>Timeline:</strong> {{ version.data.timeline }}<br>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No version history available.</p>
+    {% endif %}
+</div>
+
+<script>
+    function toggleVersion(versionNum) {
+        var row = document.getElementById('version-' + versionNum);
+        if (row.style.display === 'none') {
+            row.style.display = 'table-row';
+        } else {
+            row.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

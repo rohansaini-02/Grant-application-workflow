@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}File Appeal{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">File Appeal</h1>
+    <p class="text-muted">Application: {{ application.title }}</p>
+</div>
+
+<div class="card">
+    <div
+        style="background: var(--warning-color); color: white; padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);">
+        <strong>⚠️ Important:</strong> Appeals should only be filed if you believe there was an error in the review
+        process or if you have new information that was not previously considered.
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label" for="reason">Reason for Appeal *</label>
+            <textarea id="reason" name="reason" class="form-control" rows="10" required
+                placeholder="Explain why you believe the decision should be reconsidered..."></textarea>
+            <small class="text-muted">Provide a detailed explanation of your grounds for appeal</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="supporting_documents">Supporting Documents</label>
+            <textarea id="supporting_documents" name="supporting_documents" class="form-control" rows="4"
+                placeholder="List any additional documents or evidence..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: var(--spacing-sm); justify-content: flex-end;">
+            <a href="{% url 'applications:detail' application.pk %}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Submit Appeal</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,368 @@
+{% extends 'base.html' %}
+
+{% block title %}Reviewer Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-hero {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+        color: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(245, 158, 11, 0.3);
+    }
+
+    .dashboard-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+        background: radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .dashboard-hero h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .dashboard-hero p {
+        opacity: 0.9;
+        margin: 0;
+        font-size: 1.1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .dashboard-hero .hero-icon {
+        position: absolute;
+        right: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 5rem;
+        opacity: 0.2;
+    }
+
+    .dashboard-hero .user-link {
+        color: #fef3c7;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .dashboard-hero .user-link:hover {
+        color: white;
+        text-decoration: underline;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--stat-color, #f59e0b);
+    }
+
+    .stat-box .stat-number {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-box .stat-title {
+        color: #64748b;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .dashboard-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .dashboard-card h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .alert-card {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border: 1px solid #3b82f6;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-card h3 {
+        color: #1e40af;
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+    }
+
+    .alert-card p {
+        color: #1d4ed8;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .table-modern {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table-modern th {
+        background: #f8fafc;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table-modern td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+    }
+
+    .table-modern tr:hover td {
+        background: #fafafa;
+    }
+
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        color: white;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+        border-radius: 6px;
+    }
+
+    .btn-secondary-modern {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        color: #475569;
+        box-shadow: none;
+    }
+
+    .btn-secondary-modern:hover {
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        color: #334155;
+    }
+
+    .btn-danger-modern {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger-modern:hover {
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .empty-state p {
+        color: #64748b;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .action-grid {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-hero h1 {
+            font-size: 1.5rem;
+        }
+
+        .dashboard-hero .hero-icon {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="dashboard-hero">
+    <span class="hero-icon">📋</span>
+    <h1>Reviewer Dashboard</h1>
+    <p>Welcome, <a href="{% url 'profile' %}" class="user-link">{{ user.get_full_name|default:user.username }}</a>! Here
+        are your review assignments.</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-container">
+    <div class="stat-box" style="--stat-color: #6366f1;">
+        <div class="stat-number">{{ total_count }}</div>
+        <div class="stat-title">Total Assignments</div>
+    </div>
+    <div class="stat-box" style="--stat-color: #3b82f6;">
+        <div class="stat-number">{{ pending_count }}</div>
+        <div class="stat-title">Pending</div>
+    </div>
+    <div class="stat-box" style="--stat-color: #f59e0b;">
+        <div class="stat-number">{{ in_progress_count }}</div>
+        <div class="stat-title">In Progress</div>
+    </div>
+    <div class="stat-box" style="--stat-color: #10b981;">
+        <div class="stat-number">{{ completed_count }}</div>
+        <div class="stat-title">Completed</div>
+    </div>
+</div>
+
+{% if pending_count > 0 %}
+<div class="alert-card">
+    <h3>📋 You have {{ pending_count }} pending review(s)</h3>
+    <p>Please complete your assigned reviews before the due date.</p>
+</div>
+{% endif %}
+
+<!-- Assignments Table -->
+<div class="dashboard-card">
+    <h2>📝 My Review Assignments</h2>
+
+    {% if assignments %}
+    <table class="table-modern">
+        <thead>
+            <tr>
+                <th>Application</th>
+                <th>Rubric</th>
+                <th>Status</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assignment in assignments %}
+            <tr>
+                <td>
+                    <strong>{{ assignment.application.title|truncatechars:40 }}</strong>
+                    <br><small style="color: #64748b;">Requested: ${{
+                        assignment.application.requested_amount|floatformat:0 }}</small>
+                </td>
+                <td>{{ assignment.rubric.name|default:"Standard Rubric" }}</td>
+                <td>
+                    <span class="status-badge 
+                        {% if assignment.status == 'ASSIGNED' %}status-submitted
+                        {% elif assignment.status == 'IN_PROGRESS' %}status-under-review
+                        {% elif assignment.status == 'COMPLETED' %}status-approved
+                        {% else %}status-draft{% endif %}">
+                        {{ assignment.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    {{ assignment.due_date|date:"M d, Y"|default:"No deadline" }}
+                    {% if assignment.due_date %}
+                    <br><small style="color: #64748b;">{{ assignment.due_date|timeuntil }}</small>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if assignment.status == 'COMPLETED' %}
+                    <a href="{% url 'reviews:review_interface' assignment.pk %}"
+                        class="btn-modern btn-sm btn-secondary-modern">View Review</a>
+                    {% else %}
+                    <a href="{% url 'reviews:review_interface' assignment.pk %}" class="btn-modern btn-sm">
+                        {% if assignment.status == 'IN_PROGRESS' %}Continue{% else %}Start{% endif %} Review
+                    </a>
+                    <a href="{% url 'reviews:declare_coi' assignment.application.pk %}"
+                        class="btn-modern btn-sm btn-danger-modern" title="Declare Conflict of Interest">COI</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>You have no review assignments at this time.</p>
+        <p style="font-size: 0.9rem;">New assignments will appear here when assigned by an administrator.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Quick Actions -->
+<div class="dashboard-card">
+    <h2>⚡ Quick Actions</h2>
+    <div class="action-grid">
+        <a href="{% url 'reviews:assignment_list' %}" class="btn-modern">View All Assignments</a>
+        <a href="{% url 'profile' %}" class="btn-modern btn-secondary-modern">My Profile</a>
+    </div>
+</div>
+{% endblock %}

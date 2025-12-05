@@ -1,0 +1,73 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Django: Migrate",
+            "type": "shell",
+            "command": "${command:python.interpreterPath}",
+            "args": [
+                "manage.py",
+                "migrate"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Django: Make Migrations",
+            "type": "shell",
+            "command": "${command:python.interpreterPath}",
+            "args": [
+                "manage.py",
+                "makemigrations"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Django: Run Server",
+            "type": "shell",
+            "command": "${command:python.interpreterPath}",
+            "args": [
+                "manage.py",
+                "runserver"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Django: Seed Demo Data",
+            "type": "shell",
+            "command": "${command:python.interpreterPath}",
+            "args": [
+                "scripts/seed_demo.py"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Django: Run Tests",
+            "type": "shell",
+            "command": "${command:python.interpreterPath}",
+            "args": [
+                "-m",
+                "pytest"
+            ],
+            "problemMatcher": [],
+            "group": "test"
+        },
+        {
+            "label": "Django: Create Superuser",
+            "type": "shell",
+            "command": "${command:python.interpreterPath}",
+            "args": [
+                "manage.py",
+                "createsuperuser"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        }
+    ]
+}

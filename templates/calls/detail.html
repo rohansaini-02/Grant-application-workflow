@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ call.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-lg);">
+        <div>
+            <h1 class="card-title" style="margin: 0;">{{ call.title }}</h1>
+            {% if call.is_active %}
+            <span class="status-badge status-approved" style="margin-top: var(--spacing-sm);">Open</span>
+            {% else %}
+            <span class="status-badge status-rejected" style="margin-top: var(--spacing-sm);">Closed</span>
+            {% endif %}
+        </div>
+        {% if call.days_until_deadline >= 0 %}
+        <div
+            style="background: {% if call.days_until_deadline <= 7 %}var(--danger-color){% elif call.days_until_deadline <= 14 %}var(--warning-color){% else %}var(--success-color){% endif %}; color: white; padding: 1rem 1.5rem; border-radius: var(--radius-lg); text-align: center;">
+            <div style="font-size: 2rem; font-weight: 700;">{{ call.days_until_deadline }}</div>
+            <div>days remaining</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div
+        style="border-top: 1px solid var(--border-color); padding-top: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+        <h2>Description</h2>
+        <p style="white-space: pre-wrap;">{{ call.description }}</p>
+    </div>
+
+    <div
+        style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+        <div class="card" style="background: var(--light-color);">
+            <h3>Key Information</h3>
+            <table style="width: 100%;">
+                <tr>
+                    <td style="padding: 0.5rem 0;"><strong>Deadline:</strong></td>
+                    <td>{{ call.deadline|date:"F d, Y H:i" }}</td>
+                </tr>
+                {% if call.funding_amount_min %}
+                <tr>
+                    <td style="padding: 0.5rem 0;"><strong>Min Funding:</strong></td>
+                    <td>${{ call.funding_amount_min|floatformat:0 }}</td>
+                </tr>
+                {% endif %}
+                {% if call.funding_amount_max %}
+                <tr>
+                    <td style="padding: 0.5rem 0;"><strong>Max Funding:</strong></td>
+                    <td>${{ call.funding_amount_max|floatformat:0 }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td style="padding: 0.5rem 0;"><strong>Created:</strong></td>
+                    <td>{{ call.created_at|date:"F d, Y" }}</td>
+                </tr>
+            </table>
+        </div>
+
+        {% if call.eligibility_criteria %}
+        <div class="card" style="background: var(--light-color);">
+            <h3>Eligibility Criteria</h3>
+            <p style="white-space: pre-wrap;">{{ call.eligibility_criteria }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="border-top: 1px solid var(--border-color); padding-top: var(--spacing-lg);">
+        <div style="display: flex; gap: var(--spacing-sm);">
+            <a href="{% url 'calls:list' %}" class="btn btn-secondary">← Back to Calls</a>
+            {% if user.is_authenticated and user.is_applicant and call.is_active %}
+            <a href="{% url 'applications:create' %}?call={{ call.pk }}" class="btn btn-success">Apply to This Call</a>
+            {% endif %}
+            {% if user.is_admin_user %}
+            <a href="{% url 'calls:edit' call.pk %}" class="btn btn-primary">Edit Call</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

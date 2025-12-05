@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load review_tags %}
+
+{% block title %}Review - {{ assignment.application.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .review-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .review-panel {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .criterion-row {
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+    }
+
+    .score-input {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .score-button {
+        flex: 1;
+        padding: 0.5rem;
+        border: 2px solid #dee2e6;
+        background: white;
+        cursor: pointer;
+        border-radius: 4px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .score-button:hover {
+        border-color: var(--primary-color);
+        background: #e7f3ff;
+    }
+
+    .score-button.selected {
+        border-color: var(--primary-color);
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .score-button:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 1024px) {
+        .review-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+        <div>
+            <h1 class="card-title" style="margin: 0;">Review Assignment</h1>
+            {% if is_blinded %}
+            <p style="color: #dc3545; margin-top: 0.5rem;">
+                <strong>⚠️ BLINDED REVIEW</strong> - Applicant identity is hidden
+            </p>
+            {% endif %}
+        </div>
+        <span class="badge"
+            style="background-color: {% if assignment.status == 'ASSIGNED' %}#007bff{% elif assignment.status == 'IN_PROGRESS' %}#ffc107{% elif assignment.status == 'COMPLETED' %}#28a745{% else %}#6c757d{% endif %}; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-size: 1rem;">
+            {{ assignment.get_status_display }}
+        </span>
+    </div>
+
+    <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+        <strong>Rubric:</strong> {{ assignment.rubric.name }}<br>
+        <strong>Due Date:</strong> {{ assignment.due_date|date:"Y-m-d H:i"|default:"No deadline" }}
+        {% if assignment.due_date %}
+        <br><strong>Time Remaining:</strong> {{ assignment.due_date|timeuntil }}
+        {% endif %}
+    </div>
+</div>
+
+<div class="review-container">
+    <!-- Left Panel: Application Materials -->
+    <div class="review-panel">
+        <h2 style="margin-top: 0;">Application Materials</h2>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h3>{{ assignment.application.title }}</h3>
+            <p><strong>Program:</strong> {{ assignment.application.call_program }}</p>
+            <p><strong>Requested Amount:</strong> ${{ assignment.application.requested_amount|floatformat:0 }}</p>
+
+            {% if not is_blinded %}
+            <p><strong>Applicant:</strong> {{ assignment.application.applicant.get_full_name }}</p>
+            <p><strong>Organization:</strong> {{ assignment.application.applicant.organization|default:"Not specified"
+                }}</p>
+            {% endif %}
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <h4>Abstract</h4>
+            <p style="white-space: pre-wrap;">{{ assignment.application.abstract }}</p>
+        </div>
+
+        <div>
+            <h4>Documents</h4>
+            {% if assignment.application.documents.all %}
+            <ul style="list-style: none; padding: 0;">
+                {% for doc in assignment.application.documents.all %}
+                <li style="margin-bottom: 0.5rem;">
+                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-primary"
+                        style="padding: 0.5rem 1rem; text-decoration: none; display: inline-block;">
+                        📄 {{ doc.filename }} ({{ doc.get_document_type_display }})
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p style="color: #6c757d;">No documents attached</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right Panel: Scoring Form -->
+    <div class="review-panel">
+        <h2 style="margin-top: 0;">Scoring Rubric</h2>
+
+        <form method="post" action="{% url 'reviews:review_interface' assignment.pk %}" id="reviewForm">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 1.5rem;">
+                {% for criterion in criteria %}
+                <div class="criterion-row">
+                    <h4 style="margin: 0 0 0.5rem 0;">{{ criterion.name }}</h4>
+                    <p style="color: #6c757d; font-size: 0.875rem; margin: 0 0 0.5rem 0;">
+                        {{ criterion.description }}
+                    </p>
+                    <p style="font-size: 0.875rem; margin: 0 0 0.5rem 0;">
+                        <strong>Weight:</strong> {{ criterion.weight }}% |
+                        <strong>Range:</strong> {{ criterion.min_score }}-{{ criterion.max_score }}
+                        {% if criterion.is_required %}<span style="color: #dc3545;">*</span>{% endif %}
+                    </p>
+
+                    <div class="score-input" role="radiogroup" aria-label="Score for {{ criterion.name }}">
+                        {% for score in criterion.min_score|range_filter:criterion.max_score %}
+                        <button type="button"
+                            class="score-button {% if review.scores|get_item:criterion.id|stringformat:'s' == score|stringformat:'s' %}selected{% endif %}"
+                            data-criterion="{{ criterion.id }}" data-score="{{ score }}" aria-label="Score {{ score }}"
+                            tabindex="0">
+                            {{ score }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="score_{{ criterion.id }}" id="score_{{ criterion.id }}"
+                        value="{{ review.scores|get_item:criterion.id|default:'' }}">
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h4>Strengths</h4>
+                <textarea name="strengths" class="form-control" rows="4"
+                    placeholder="What are the key strengths of this application?">{{ review.strengths }}</textarea>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h4>Weaknesses</h4>
+                <textarea name="weaknesses" class="form-control" rows="4"
+                    placeholder="What are the main weaknesses or areas for improvement?">{{ review.weaknesses }}</textarea>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h4>Recommendation</h4>
+                <textarea name="recommendation" class="form-control" rows="4"
+                    placeholder="Your overall recommendation...">{{ review.recommendation }}</textarea>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h4>Confidential Comments (Admin Only)</h4>
+                <textarea name="confidential_comments" class="form-control" rows="3"
+                    placeholder="Comments visible only to administrators...">{{ review.confidential_comments }}</textarea>
+            </div>
+
+            <div style="border-top: 1px solid #dee2e6; padding-top: 1.5rem;">
+                {% if review.status == 'SUBMITTED' %}
+                <div style="background: #d4edda; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                    <strong>✓ Review Submitted</strong><br>
+                    Submitted on: {{ review.submitted_at|date:"Y-m-d H:i" }}<br>
+                    Overall Score: {{ review.overall_score|floatformat:2 }}/100
+                </div>
+                <a href="{% url 'reviews:assignment_list' %}" class="btn btn-primary">Back to Assignments</a>
+                {% else %}
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary">Save Draft</button>
+                    <a href="{% url 'reviews:review_submit' assignment.pk %}" class="btn btn-success"
+                        onclick="return confirm('Submit this review? You will not be able to edit it after submission.')">
+                        Submit Review
+                    </a>
+                    <a href="{% url 'reviews:assignment_list' %}" class="btn"
+                        style="background-color: #6c757d; color: white;">Cancel</a>
+                    <a href="{% url 'reviews:declare_coi' assignment.application.pk %}" class="btn btn-danger">Declare
+                        COI</a>
+                </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Score button selection with AJAX auto-save
+    document.querySelectorAll('.score-button').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var criterionId = this.dataset.criterion;
+            var score = this.dataset.score;
+            var btn = this;
+
+            // Remove selected class from siblings
+            this.parentElement.querySelectorAll('.score-button').forEach(function (b) {
+                b.classList.remove('selected');
+            });
+
+            // Add selected class to clicked button
+            this.classList.add('selected');
+
+            // Update hidden input
+            document.getElementById('score_' + criterionId).value = score;
+
+            // Auto-save via AJAX
+            var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch('{% url "reviews:save_review_score" assignment.pk %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    criterion_id: criterionId,
+                    score: score
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        // Visual feedback - green flash
+                        btn.style.transition = 'background-color 0.3s';
+                        btn.style.backgroundColor = '#28a745';
+                        setTimeout(function () {
+                            btn.style.backgroundColor = '';
+                        }, 500);
+                    } else {
+                        console.error('Failed to save score');
+                        alert('Failed to save score. Please try again.');
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error saving score:', error);
+                    alert('Error saving score. Please check your connection.');
+                });
+        });
+
+        // Keyboard navigation
+        button.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
+            }
+        });
+    });
+
+    // Form validation
+    document.getElementById('reviewForm').addEventListener('submit', function (e) {
+        var scoreInputs = document.querySelectorAll('input[type="hidden"][name^="score_"]');
+        var allScored = true;
+
+        scoreInputs.forEach(function (input) {
+            var criterionRow = input.closest('.criterion-row');
+            var hasRequiredMarker = criterionRow && criterionRow.querySelector('span[style*="color: #dc3545"]');
+
+            if (hasRequiredMarker && !input.value) {
+                allScored = false;
+            }
+        });
+
+        if (!allScored) {
+            e.preventDefault();
+            alert('Please score all required criteria before saving.');
+        }
+    });
+</script>
+{% endblock %}

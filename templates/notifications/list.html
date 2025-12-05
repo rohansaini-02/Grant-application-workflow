@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h1 class="card-title" style="margin: 0;">Notifications</h1>
+        {% if unread_count > 0 %}
+        <form method="post" action="{% url 'notifications:mark_all_read' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Mark All as Read</button>
+        </form>
+        {% endif %}
+    </div>
+
+    {% if notifications %}
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        {% for notification in notifications %}
+        <div class="card"
+            style="{% if not notification.is_read %}background-color: #e7f3ff; border-left: 4px solid var(--primary-color);{% endif %}">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        {% if not notification.is_read %}
+                        <span
+                            style="width: 8px; height: 8px; background-color: var(--primary-color); border-radius: 50%;"></span>
+                        {% endif %}
+                        <strong>{{ notification.title }}</strong>
+                        <span class="badge"
+                            style="background-color: 
+                            {% if notification.notification_type == 'SUCCESS' %}#28a745
+                            {% elif notification.notification_type == 'INFO' %}#007bff
+                            {% elif notification.notification_type == 'WARNING' %}#ffc107
+                            {% elif notification.notification_type == 'ERROR' %}#dc3545
+                            {% elif notification.notification_type == 'REMINDER' %}#17a2b8
+                            {% else %}#6c757d{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.75rem;">
+                            {{ notification.get_notification_type_display }}
+                        </span>
+                    </div>
+                    <p style="margin: 0 0 0.5rem 0; color: #495057;">{{ notification.message }}</p>
+                    <small style="color: #6c757d;">{{ notification.created_at|timesince }} ago</small>
+                    {% if notification.link_url %}
+                    <a href="{{ notification.link_url }}" style="margin-left: 1rem; font-size: 0.875rem;">View →</a>
+                    {% endif %}
+                </div>
+                {% if not notification.is_read %}
+                <form method="post" action="{% url 'notifications:mark_read' notification.pk %}"
+                    style="margin-left: 1rem;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">Mark as Read</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if notifications.has_other_pages %}
+    <div style="margin-top: 1rem; text-align: center;">
+        {% if notifications.has_previous %}
+        <a href="?page={{ notifications.previous_page_number }}" class="btn btn-primary">← Previous</a>
+        {% endif %}
+        <span style="margin: 0 1rem;">Page {{ notifications.number }} of {{ notifications.paginator.num_pages }}</span>
+        {% if notifications.has_next %}
+        <a href="?page={{ notifications.next_page_number }}" class="btn btn-primary">Next →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div style="text-align: center; padding: 2rem;">
+        <p>No notifications yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

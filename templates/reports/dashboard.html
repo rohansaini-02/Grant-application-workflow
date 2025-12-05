@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Reports & Analytics Dashboard</h1>
+
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <div class="card"
+            style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 style="margin: 0; font-size: 2.5rem;">{{ total_applications }}</h2>
+            <p style="margin: 0.5rem 0 0 0;">Total Applications</p>
+        </div>
+        <div class="card"
+            style="text-align: center; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+            <h2 style="margin: 0; font-size: 2.5rem;">{{ total_reviews }}</h2>
+            <p style="margin: 0.5rem 0 0 0;">Total Reviews</p>
+        </div>
+        <div class="card"
+            style="text-align: center; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+            <h2 style="margin: 0; font-size: 2.5rem;">{{ total_reviewers }}</h2>
+            <p style="margin: 0.5rem 0 0 0;">Active Reviewers</p>
+        </div>
+        <div class="card"
+            style="text-align: center; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+            <h2 style="margin: 0; font-size: 2.5rem;">{{ avg_score|floatformat:1 }}</h2>
+            <p style="margin: 0.5rem 0 0 0;">Average Score</p>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card">
+            <h3>Export Options</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="{% url 'reports:export_applications' %}" class="btn btn-primary">📊 Export Applications
+                    (CSV)</a>
+                <a href="{% url 'reports:export_reviews' %}" class="btn btn-primary">📊 Export Reviews (CSV)</a>
+                <a href="{% url 'reports:dashboard' %}?generate=feedback" class="btn btn-success">📦 Generate Feedback
+                    Packets (ZIP)</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Quick Stats</h3>
+            <table class="table">
+                <tr>
+                    <td>Pending Reviews</td>
+                    <td><strong>{{ pending_reviews }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Overdue Reviews</td>
+                    <td><strong style="color: #dc3545;">{{ overdue_reviews }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Applications Under Review</td>
+                    <td><strong>{{ under_review_count }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Approved Applications</td>
+                    <td><strong style="color: #28a745;">{{ approved_count }}</strong></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Application Status Distribution</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                    <th>Percentage</th>
+                    <th>Visual</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in status_distribution %}
+                <tr>
+                    <td><strong>{{ stat.status }}</strong></td>
+                    <td>{{ stat.count }}</td>
+                    <td>{{ stat.percentage|floatformat:1 }}%</td>
+                    <td>
+                        <div style="background: #e9ecef; height: 20px; border-radius: 4px; overflow: hidden;">
+                            <div style="background: var(--primary-color); height: 100%; width: {{ stat.percentage }}%;">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Reviewer Load Distribution</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Reviewer</th>
+                    <th>Current Load</th>
+                    <th>Completed Reviews</th>
+                    <th>Pending Reviews</th>
+                    <th>Load Visual</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reviewer in reviewer_stats %}
+                <tr>
+                    <td><strong>{{ reviewer.name }}</strong></td>
+                    <td>{{ reviewer.current_load }}</td>
+                    <td>{{ reviewer.completed }}</td>
+                    <td>{{ reviewer.pending }}</td>
+                    <td>
+                        <div
+                            style="background: #e9ecef; height: 20px; border-radius: 4px; overflow: hidden; width: 200px;">
+                            <div
+                                style="background: {% if reviewer.current_load > 10 %}#dc3545{% elif reviewer.current_load > 5 %}#ffc107{% else %}#28a745{% endif %}; height: 100%; width: {{ reviewer.load_percentage }}%;">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if recent_exports %}
+    <div class="card">
+        <h3>Recent Exports</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Type</th>
+                    <th>Created</th>
+                    <th>Downloads</th>
+                    <th>Expires</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for export in recent_exports %}
+                <tr>
+                    <td>{{ export.filename }}</td>
+                    <td>{{ export.get_export_type_display }}</td>
+                    <td>{{ export.created_at|date:"Y-m-d H:i" }}</td>
+                    <td>{{ export.download_count }}</td>
+                    <td>
+                        {% if export.is_expired %}
+                        <span style="color: #dc3545;">Expired</span>
+                        {% else %}
+                        {{ export.expires_at|timeuntil }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not export.is_expired %}
+                        <a href="{% url 'reports:download' export.access_token %}" class="btn btn-primary"
+                            style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">Download</a>
+                        {% else %}
+                        <span style="color: #6c757d;">Expired</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

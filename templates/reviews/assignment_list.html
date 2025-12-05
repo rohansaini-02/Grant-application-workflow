@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_admin_view %}All Review Assignments{% else %}My Review Assignments{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">{% if is_admin_view %}All Review Assignments{% else %}My Review Assignments{% endif %}</h1>
+
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="card" style="flex: 1; text-align: center;">
+            <strong style="font-size: 2rem; color: var(--warning-color);">{{ pending_count }}</strong>
+            <p style="margin: 0; color: #6c757d;">Pending</p>
+        </div>
+        <div class="card" style="flex: 1; text-align: center;">
+            <strong style="font-size: 2rem; color: var(--success-color);">{{ completed_count }}</strong>
+            <p style="margin: 0; color: #6c757d;">Completed</p>
+        </div>
+    </div>
+
+    {% if assignments %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Application</th>
+                <th>Program</th>
+                {% if is_admin_view %}
+                <th>Reviewer</th>
+                {% endif %}
+                <th>Status</th>
+                <th>Assigned</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assignment in assignments %}
+            <tr {% if assignment.is_overdue %}style="background-color: #fff3cd;" {% endif %}>
+                <td><strong>{{ assignment.application.title }}</strong></td>
+                <td>{{ assignment.application.call_program }}</td>
+                {% if is_admin_view %}
+                <td>{{ assignment.reviewer.get_full_name|default:assignment.reviewer.username }}</td>
+                {% endif %}
+                <td>
+                    <span class="badge" style="background-color: 
+                        {% if assignment.status == 'ASSIGNED' %}#007bff
+                        {% elif assignment.status == 'IN_PROGRESS' %}#ffc107
+                        {% elif assignment.status == 'COMPLETED' %}#28a745
+                        {% else %}#6c757d{% endif %}; color: white; padding: 0.25rem 0.5rem; border-radius: 3px;">
+                        {{ assignment.get_status_display }}
+                    </span>
+                    {% if assignment.is_overdue %}
+                    <span class="badge"
+                        style="background-color: #dc3545; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; margin-left: 0.25rem;">OVERDUE</span>
+                    {% endif %}
+                </td>
+                <td>{{ assignment.assigned_date|date:"Y-m-d" }}</td>
+                <td>
+                    {{ assignment.due_date|date:"Y-m-d"|default:"No deadline" }}
+                    {% if assignment.due_date %}
+                    <br><small style="color: #6c757d;">({{ assignment.due_date|timeuntil }} remaining)</small>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if is_admin_view %}
+                    <a href="{% url 'admin:reviews_reviewassignment_change' assignment.pk %}" class="btn btn-primary"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">View in Admin</a>
+                    {% else %}
+                    {% if assignment.status == 'COMPLETED' %}
+                    <a href="{% url 'reviews:review_interface' assignment.pk %}" class="btn btn-primary"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">View Review</a>
+                    {% else %}
+                    <a href="{% url 'reviews:review_interface' assignment.pk %}" class="btn btn-success"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        {% if assignment.status == 'IN_PROGRESS' %}Continue Review{% else %}Start Review{% endif %}
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 2rem;">
+        <p>No review assignments yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

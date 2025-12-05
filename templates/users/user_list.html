@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users - Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h1 class="card-title" style="margin: 0;">Manage Users</h1>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="{% url 'user_list' %}"
+                class="btn {% if not role_filter %}btn-primary{% else %}btn-secondary{% endif %}">All ({{ total_users
+                }})</a>
+            <a href="{% url 'user_list' %}?role=APPLICANT"
+                class="btn {% if role_filter == 'APPLICANT' %}btn-primary{% else %}btn-secondary{% endif %}">Applicants
+                ({{ applicant_count }})</a>
+            <a href="{% url 'user_list' %}?role=REVIEWER"
+                class="btn {% if role_filter == 'REVIEWER' %}btn-primary{% else %}btn-secondary{% endif %}">Reviewers
+                ({{ reviewer_count }})</a>
+            <a href="{% url 'user_list' %}?role=ADMIN"
+                class="btn {% if role_filter == 'ADMIN' %}btn-primary{% else %}btn-secondary{% endif %}">Admins ({{
+                admin_count }})</a>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>
+                    <a href="{% url 'user_detail' user.pk %}" style="font-weight: 600; color: var(--primary-color);">{{
+                        user.username }}</a>
+                </td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.get_full_name }}</td>
+                <td>
+                    <span class="status-badge 
+                        {% if user.role == 'ADMIN' %}status-rejected
+                        {% elif user.role == 'REVIEWER' %}status-submitted
+                        {% else %}status-approved{% endif %}">
+                        {{ user.get_role_display }}
+                    </span>
+                </td>
+                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                <td>
+                    <a href="{% url 'user_edit' user.pk %}" class="btn btn-secondary"
+                        style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">Edit Role</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">No users found matching the criteria.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 1.5rem;">
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

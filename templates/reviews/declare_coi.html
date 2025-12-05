@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Declare Conflict of Interest{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Declare Conflict of Interest</h1>
+
+    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; margin-bottom: 1.5rem;">
+        <strong>⚠️ Important:</strong> If you have any conflict of interest with this application, you must declare it
+        immediately.
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+        <h3>Application Details</h3>
+        <p><strong>Title:</strong> {{ application.title }}</p>
+        <p><strong>Program:</strong> {{ application.call_program }}</p>
+        <p><strong>Applicant:</strong> {{ application.applicant.get_full_name }}</p>
+    </div>
+
+    <form method="post" action="{% url 'reviews:declare_coi' application.pk %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="coi_type" class="form-label">Type of Conflict *</label>
+            <select id="coi_type" name="coi_type" class="form-control" required>
+                <option value="">Select type...</option>
+                <option value="FINANCIAL">Financial Interest</option>
+                <option value="PERSONAL">Personal Relationship</option>
+                <option value="PROFESSIONAL">Professional Relationship</option>
+                <option value="INSTITUTIONAL">Institutional Affiliation</option>
+                <option value="OTHER">Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="description" class="form-label">Description of Conflict *</label>
+            <textarea id="description" name="description" class="form-control" rows="6" required
+                placeholder="Please describe the nature of your conflict of interest..."></textarea>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+            <p style="margin: 0; font-size: 0.875rem; color: #6c757d;">
+                By declaring this conflict of interest, you will be automatically removed from this review assignment.
+                An administrator will be notified and may contact you for additional information.
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="submit" class="btn btn-danger"
+                onclick="return confirm('Are you sure you want to declare a conflict of interest? You will be removed from this review.')">
+                Declare COI
+            </button>
+            <a href="{% url 'reviews:assignment_list' %}" class="btn"
+                style="background-color: #6c757d; color: white;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

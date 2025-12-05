@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Application - Step {{ step }} of 5{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">New Application{% if call %} - {{ call.title }}{% endif %}</h1>
+
+    <!-- Stepper -->
+    <div style="display: flex; justify-content: space-between; margin: var(--spacing-xl) 0; position: relative;">
+        {% for i in "12345" %}
+        <div style="flex: 1; text-align: center; position: relative;">
+            <div
+                style="width: 40px; height: 40px; border-radius: 50%; margin: 0 auto var(--spacing-sm); display: flex; align-items: center; justify-content: center; font-weight: 700; {% if forloop.counter <= step %}background: var(--primary-color); color: white;{% else %}background: var(--border-color); color: var(--text-muted);{% endif %}">
+                {{ forloop.counter }}
+            </div>
+            <div
+                style="font-size: var(--font-size-sm); {% if forloop.counter == step %}font-weight: 600; color: var(--primary-color);{% else %}color: var(--text-muted);{% endif %}">
+                {% if forloop.counter == 1 %}Basic Info
+                {% elif forloop.counter == 2 %}Team
+                {% elif forloop.counter == 3 %}Proposal
+                {% elif forloop.counter == 4 %}Documents
+                {% else %}Review{% endif %}
+            </div>
+        </div>
+        {% if not forloop.last %}
+        <div
+            style="position: absolute; top: 20px; left: {{ forloop.counter0|add:1|mul:20 }}%; width: 20%; height: 2px; {% if forloop.counter < step %}background: var(--primary-color);{% else %}background: var(--border-color);{% endif %}">
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {% if step == 1 %}
+    <!-- Step 1: Basic Info -->
+    <div class="card">
+        <h2>Basic Information</h2>
+
+        <div class="form-group">
+            <label class="form-label" for="title">Application Title *</label>
+            <input type="text" id="title" name="title" class="form-control" value="{{ form_data.title }}" required
+                maxlength="500">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="abstract">Abstract *</label>
+            <textarea id="abstract" name="abstract" class="form-control" rows="6" required maxlength="1000"
+                placeholder="Maximum 300 words">{{ form_data.abstract }}</textarea>
+            <small class="text-muted">Provide a brief summary of your proposal (max 300 words)</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="tags">Keywords/Tags</label>
+            <input type="text" id="tags" name="tags" class="form-control" value="{{ form_data.tags }}"
+                placeholder="biology, climate, research">
+            <small class="text-muted">Comma-separated keywords for categorization</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="requested_amount">Requested Funding Amount *</label>
+            <input type="number" id="requested_amount" name="requested_amount" class="form-control"
+                value="{{ form_data.requested_amount }}" required min="0" step="0.01">
+        </div>
+    </div>
+
+    {% elif step == 2 %}
+    <!-- Step 2: Team Info -->
+    <div class="card">
+        <h2>Team Information</h2>
+
+        <div class="form-group">
+            <label class="form-label">Principal Investigator</label>
+            <input type="text" class="form-control" value="{{ user.get_full_name }}" readonly>
+            <small class="text-muted">Your information (prefilled)</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="co_investigators">Co-Investigators</label>
+            <textarea id="co_investigators" name="co_investigators" class="form-control" rows="4"
+                placeholder="Name, Institution&#10;Name, Institution">{{ form_data.co_investigators }}</textarea>
+            <small class="text-muted">List co-investigators, one per line</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="affiliations">Institutional Affiliations</label>
+            <textarea id="affiliations" name="affiliations" class="form-control"
+                rows="3">{{ form_data.affiliations }}</textarea>
+        </div>
+    </div>
+
+    {% elif step == 3 %}
+    <!-- Step 3: Detailed Proposal -->
+    <div class="card">
+        <h2>Detailed Proposal</h2>
+
+        <div class="form-group">
+            <label class="form-label" for="full_proposal">Full Proposal Text</label>
+            <textarea id="full_proposal" name="full_proposal" class="form-control" rows="15"
+                placeholder="Enter your detailed proposal here...">{{ form_data.full_proposal }}</textarea>
+            <small class="text-muted">Or upload a PDF document in the next step</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="budget_summary">Budget Summary</label>
+            <textarea id="budget_summary" name="budget_summary" class="form-control" rows="6"
+                placeholder="Item | Amount&#10;Personnel | $50,000&#10;Equipment | $20,000">{{ form_data.budget_summary }}</textarea>
+        </div>
+    </div>
+
+    {% elif step == 4 %}
+    <!-- Step 4: Documents -->
+    <div class="card">
+        <h2>Supporting Documents</h2>
+
+        <div class="form-group">
+            <label class="form-label" for="proposal_doc">Proposal Document (PDF)</label>
+            <input type="file" id="proposal_doc" name="proposal_doc" class="form-control" accept=".pdf">
+            <small class="text-muted">Upload your full proposal as PDF</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="budget_doc">Budget Document</label>
+            <input type="file" id="budget_doc" name="budget_doc" class="form-control" accept=".pdf,.xlsx,.xls">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="cv_doc">CV/Resume</label>
+            <input type="file" id="cv_doc" name="cv_doc" class="form-control" accept=".pdf">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="other_docs">Other Supporting Documents</label>
+            <input type="file" id="other_docs" name="other_docs" class="form-control" multiple>
+            <small class="text-muted">Letters of support, ethics approvals, etc.</small>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Step 5: Review & Submit -->
+    <div class="card">
+        <h2>Review Your Application</h2>
+
+        <div
+            style="background: var(--light-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);">
+            <h3>Basic Information</h3>
+            <p><strong>Title:</strong> {{ form_data.title }}</p>
+            <p><strong>Abstract:</strong> {{ form_data.abstract|truncatewords:50 }}</p>
+            <p><strong>Requested Amount:</strong> ${{ form_data.requested_amount }}</p>
+            <p><strong>Tags:</strong> {{ form_data.tags }}</p>
+        </div>
+
+        <div
+            style="background: var(--light-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);">
+            <h3>Team</h3>
+            <p><strong>PI:</strong> {{ user.get_full_name }}</p>
+            {% if form_data.co_investigators %}
+            <p><strong>Co-Investigators:</strong><br>{{ form_data.co_investigators|linebreaks }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                <input type="checkbox" name="confirm_accuracy" required>
+                <span>I confirm that all information provided is accurate and complete</span>
+            </label>
+        </div>
+
+        <div
+            style="background: var(--primary-light); padding: var(--spacing-lg); border-radius: var(--radius-md); border-left: 4px solid var(--primary-color);">
+            <strong>Note:</strong> This submission will be blinded for reviewers. Your name and institutional
+            affiliation will be hidden during the review process.
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation Buttons -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between;">
+            <div>
+                {% if step > 1 %}
+                <button type="submit" name="action" value="previous" class="btn btn-secondary">← Previous</button>
+                {% else %}
+                <a href="{% url 'applications:list' %}" class="btn btn-secondary">Cancel</a>
+                {% endif %}
+            </div>
+            <div style="display: flex; gap: var(--spacing-sm);">
+                <button type="submit" name="action" value="save_draft" class="btn btn-secondary">Save Draft</button>
+                {% if step < 5 %} <button type="submit" name="action" value="next" class="btn btn-primary">Next
+                    →</button>
+                    {% else %}
+                    <button type="submit" name="action" value="submit" class="btn btn-success">Submit
+                        Application</button>
+                    {% endif %}
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

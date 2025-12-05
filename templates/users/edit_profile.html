@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-profile-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .edit-profile-header {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+        color: white;
+        padding: 2.5rem;
+        border-radius: 24px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+    }
+
+    .edit-profile-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 40%;
+        height: 100%;
+        background: radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .edit-profile-header h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .edit-profile-header p {
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+        font-size: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .edit-profile-header .header-icon {
+        position: absolute;
+        right: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 4rem;
+        opacity: 0.2;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .form-card h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 1.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group .form-control:focus {
+        outline: none;
+        border-color: #6366f1;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-group textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .form-group .help-text {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 0.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        cursor: pointer;
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        color: white;
+    }
+
+    .btn-secondary-modern {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        color: #475569;
+        box-shadow: none;
+    }
+
+    .btn-secondary-modern:hover {
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        color: #334155;
+    }
+
+    .error-message {
+        color: #dc2626;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        border: 1px solid #10b981;
+        color: #065f46;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .alert-error {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        border: 1px solid #ef4444;
+        color: #991b1b;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-profile-container">
+    <!-- Header -->
+    <div class="edit-profile-header">
+        <span class="header-icon">✏️</span>
+        <h1>Edit Profile</h1>
+        <p>Update your personal information</p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <!-- Personal Information -->
+        <div class="form-card">
+            <h2>👤 Personal Information</h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_first_name">First Name *</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                    <div class="error-message">{{ form.first_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_last_name">Last Name *</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                    <div class="error-message">{{ form.last_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_email">Email Address *</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                <div class="error-message">{{ form.email.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_phone">Phone Number</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                    <div class="error-message">{{ form.phone.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_organization">Organization</label>
+                    {{ form.organization }}
+                    {% if form.organization.errors %}
+                    <div class="error-message">{{ form.organization.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="form-card">
+            <h2>📝 About Me</h2>
+
+            <div class="form-group">
+                <label for="id_bio">Biography</label>
+                {{ form.bio }}
+                <div class="help-text">Tell us about yourself, your background, and interests.</div>
+                {% if form.bio.errors %}
+                <div class="error-message">{{ form.bio.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Expertise Section (only for reviewers) -->
+        {% if show_expertise %}
+        <div class="form-card">
+            <h2>🎯 Expertise Areas</h2>
+
+            <div class="form-group">
+                <label for="id_expertise_tags_input">Expertise Tags</label>
+                {{ form.expertise_tags_input }}
+                <div class="help-text">{{ form.expertise_tags_input.help_text }}</div>
+                {% if form.expertise_tags_input.errors %}
+                <div class="error-message">{{ form.expertise_tags_input.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button type="submit" class="btn-modern">💾 Save Changes</button>
+            <a href="{% url 'profile' %}" class="btn-modern btn-secondary-modern">← Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

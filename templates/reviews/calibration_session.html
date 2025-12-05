@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load review_tags %}
+
+{% block title %}{{ session.name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">{{ session.name }}</h1>
+    <p class="text-muted">{{ session.description }}</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+    <!-- Left: Example Application -->
+    <div class="card">
+        <h2>Example Application</h2>
+        <h3>{{ session.example_application.title }}</h3>
+        <p><strong>Abstract:</strong></p>
+        <p>{{ session.example_application.abstract }}</p>
+    </div>
+
+    <!-- Right: Scoring Form -->
+    <div class="card">
+        <h2>Your Scores</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% for criterion in criteria %}
+            <div
+                style="margin-bottom: var(--spacing-lg); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-color);">
+                <h4>{{ criterion.name }} (Weight: {{ criterion.weight }})</h4>
+                <p class="text-muted">{{ criterion.description }}</p>
+
+                <div style="display: flex; gap: 0.5rem; margin-top: var(--spacing-sm);">
+                    {% for i in criterion.min_score|make_range:criterion.max_score %}
+                    <label style="flex: 1; text-align: center;">
+                        <input type="radio" name="score_{{ criterion.id }}" value="{{ i }}" {% if
+                            score.scores|get_item:criterion.id|stringformat:"s"==i|stringformat:"s" %}checked{% endif %}
+                            style="display: block; margin: 0 auto;">
+                        <span>{{ i }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="form-group">
+                <label class="form-label" for="comments">Comments</label>
+                <textarea id="comments" name="comments" class="form-control" rows="4">{{ score.comments }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Scores</button>
+        </form>
+    </div>
+</div>
+
+<!-- All Participant Scores -->
+{% if session.is_completed and all_scores %}
+<div class="card">
+    <h2>All Participant Scores</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Reviewer</th>
+                <th>Overall Score</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for participant_score in all_scores %}
+            <tr>
+                <td>{{ participant_score.reviewer.get_full_name }}</td>
+                <td>{{ participant_score.overall_score|default:"Not scored" }}</td>
+                <td>{{ participant_score.comments|truncatewords:20 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if session.consensus_score %}
+    <div
+        style="background: var(--success-color); color: white; padding: var(--spacing-lg); border-radius: var(--radius-md); text-align: center;">
+        <h3 style="margin: 0;">Consensus Score: {{ session.consensus_score }}/100</h3>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

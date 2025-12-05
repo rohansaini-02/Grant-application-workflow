@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Grant Application Workflow{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="container">
+            <div class="navbar-brand">
+                <a href="{% url 'dashboard' %}" class="navbar-item">
+                    <strong>Grant Workflow</strong>
+                </a>
+            </div>
+
+            {% if user.is_authenticated %}
+            <div class="navbar-menu">
+                <div class="navbar-start">
+                    <a href="{% url 'dashboard' %}" class="navbar-item">Dashboard</a>
+
+                    {% if user.is_applicant %}
+                    <a href="{% url 'applications:list' %}" class="navbar-item">My Applications</a>
+                    <a href="{% url 'applications:create' %}" class="navbar-item">New Application</a>
+                    {% endif %}
+
+                    {% if user.is_reviewer %}
+                    <a href="{% url 'reviews:assignment_list' %}" class="navbar-item">My Reviews</a>
+                    {% endif %}
+
+                    {% if user.is_admin_user %}
+                    <a href="{% url 'admin:index' %}" class="navbar-item">Admin</a>
+                    <a href="{% url 'reports:dashboard' %}" class="navbar-item">Reports</a>
+                    {% endif %}
+                </div>
+
+                <div class="navbar-end">
+                    <a href="{% url 'notifications:list' %}" class="navbar-item" aria-label="Notifications">
+                        🔔 Notifications
+                        {% if unread_count > 0 %}
+                        <span class="badge">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'profile' %}" class="navbar-item">{{ user.username }}</a>
+                    <form method="post" action="{% url 'logout' %}" style="display: inline; margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" class="navbar-item"
+                            style="background: none; border: none; cursor: pointer; color: inherit; font: inherit; padding: 0.5rem 1rem;">Logout</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="main-content" role="main">
+        <div class="container">
+            {% if messages %}
+            <div class="messages" role="alert">
+                {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <p>&copy; 2024 Grant Application Workflow. All rights reserved.</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

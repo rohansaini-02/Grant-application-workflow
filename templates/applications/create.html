@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Application{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Create New Application</h1>
+
+    <form method="post" action="{% url 'applications:create' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="title" class="form-label">Application Title *</label>
+            <input type="text" id="title" name="title" class="form-control" required maxlength="500">
+        </div>
+
+        <div class="form-group">
+            <label for="call_program" class="form-label">Call/Program *</label>
+            <input type="text" id="call_program" name="call_program" class="form-control" required maxlength="255"
+                placeholder="e.g., Research Grant 2024">
+        </div>
+
+        <div class="form-group">
+            <label for="abstract" class="form-label">Abstract *</label>
+            <textarea id="abstract" name="abstract" class="form-control" rows="6" required
+                placeholder="Provide a brief summary of your proposed research or project..."></textarea>
+            <small style="color: #6c757d;">Describe the main objectives, methodology, and expected outcomes.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="requested_amount" class="form-label">Requested Amount ($) *</label>
+            <input type="number" id="requested_amount" name="requested_amount" class="form-control" required min="0"
+                step="0.01" placeholder="100000">
+        </div>
+
+        <div class="form-group">
+            <label for="tags" class="form-label">Tags (comma-separated)</label>
+            <input type="text" id="tags" name="tags" class="form-control" placeholder="biology, research, genetics">
+            <small style="color: #6c757d;">Enter keywords separated by commas</small>
+        </div>
+
+        <div style="border-top: 1px solid #dee2e6; margin: 1.5rem 0; padding-top: 1.5rem;">
+            <p style="color: #6c757d; margin-bottom: 1rem;">
+                <strong>Note:</strong> This will create a draft application. You can add documents and make changes
+                before submitting.
+            </p>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary">Create Draft</button>
+                <a href="{% url 'applications:list' %}" class="btn"
+                    style="background-color: #6c757d; color: white;">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+</style>
+{% endblock %}

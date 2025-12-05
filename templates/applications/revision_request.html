@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Revision Request{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Revision Requested</h1>
+    <p class="text-muted">Application: {{ application.title }}</p>
+</div>
+
+<div class="card">
+    <div
+        style="background: var(--info-color); color: white; padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);">
+        <strong>ℹ️ Action Required:</strong> The review panel has requested revisions to your application. Please review
+        the feedback below and submit your revised materials.
+    </div>
+
+    <div
+        style="background: var(--light-color); padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);">
+        <h3>Changes Required:</h3>
+        <p style="white-space: pre-wrap;">{{ revision_request.changes_required }}</p>
+
+        <p style="margin-top: var(--spacing-md);"><strong>Requested by:</strong> {{
+            revision_request.requested_by.get_full_name }}</p>
+        <p><strong>Requested on:</strong> {{ revision_request.requested_at|date:"F d, Y" }}</p>
+    </div>
+
+    <div style="display: flex; gap: var(--spacing-sm);">
+        <a href="{% url 'applications:detail' application.pk %}" class="btn btn-secondary">Back to Application</a>
+        <a href="{% url 'applications:submit_revision' application.pk %}" class="btn btn-primary">Submit Revision</a>
+    </div>
+</div>
+{% endblock %}

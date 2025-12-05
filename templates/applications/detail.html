@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ application.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+        <div>
+            <h1 class="card-title" style="margin: 0;">{{ application.title }}</h1>
+            <p style="color: #6c757d; margin-top: 0.5rem;">{{ application.call_program }}</p>
+        </div>
+        <span class="badge" style="background-color: 
+            {% if application.status == 'DRAFT' %}#6c757d
+            {% elif application.status == 'SUBMITTED' %}#007bff
+            {% elif application.status == 'UNDER_REVIEW' %}#ffc107
+            {% elif application.status == 'APPROVED' %}#28a745
+            {% elif application.status == 'REJECTED' %}#dc3545
+            {% else %}#17a2b8{% endif %}; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-size: 1rem;">
+            {{ application.get_status_display }}
+        </span>
+    </div>
+
+    <div style="border-bottom: 1px solid #dee2e6; margin-bottom: 1.5rem;"></div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <strong>Applicant:</strong> {{ application.applicant.get_full_name }}
+        </div>
+        <div>
+            <strong>Requested Amount:</strong> ${{ application.requested_amount|floatformat:0 }}
+        </div>
+        <div>
+            <strong>Created:</strong> {{ application.created_at|date:"Y-m-d H:i" }}
+        </div>
+        <div>
+            <strong>Deadline:</strong> {{ application.deadline|date:"Y-m-d"|default:"Not set" }}
+        </div>
+        {% if application.submitted_at %}
+        <div>
+            <strong>Submitted:</strong> {{ application.submitted_at|date:"Y-m-d H:i" }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+        <h3>Abstract</h3>
+        <p style="white-space: pre-wrap;">{{ application.abstract }}</p>
+    </div>
+
+    {% if application.tags %}
+    <div style="margin-bottom: 1.5rem;">
+        <strong>Tags:</strong>
+        {% for tag in application.tags %}
+        <span style="background-color: #e9ecef; padding: 0.25rem 0.5rem; border-radius: 3px; margin-right: 0.5rem;">{{
+            tag }}</span>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="border-bottom: 1px solid #dee2e6; margin: 1.5rem 0;"></div>
+
+    <h3>Documents</h3>
+    {% if documents %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Type</th>
+                <th>Size</th>
+                <th>Uploaded</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in documents %}
+            <tr>
+                <td>{{ doc.filename }}</td>
+                <td>{{ doc.get_document_type_display }}</td>
+                <td>{{ doc.file_size|filesizeformat }}</td>
+                <td>{{ doc.uploaded_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{{ doc.file.url }}" class="btn btn-primary"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" download>Download</a>
+                    {% if can_edit %}
+                    <form method="post" action="{% url 'applications:document_delete' doc.id %}"
+                        style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger"
+                            style="padding: 0.25rem 0.5rem; font-size: 0.875rem;"
+                            onclick="return confirm('Delete this document?')">Delete</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No documents uploaded yet.</p>
+    {% endif %}
+
+    {% if can_edit %}
+    <form method="post" action="{% url 'applications:document_upload' application.pk %}" enctype="multipart/form-data"
+        style="margin-top: 1rem;">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="file" class="form-label">Upload Document</label>
+            <input type="file" id="file" name="file" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="document_type" class="form-label">Document Type</label>
+            <select id="document_type" name="document_type" class="form-control">
+                <option value="PROPOSAL">Proposal</option>
+                <option value="BUDGET">Budget</option>
+                <option value="CV">CV/Resume</option>
+                <option value="LETTER">Support Letter</option>
+                <option value="OTHER">Other</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+    {% endif %}
+
+    <div style="border-bottom: 1px solid #dee2e6; margin: 1.5rem 0;"></div>
+
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="{% url 'applications:list' %}" class="btn btn-primary">Back to List</a>
+
+        {% if can_edit %}
+        <a href="{% url 'applications:edit' application.pk %}" class="btn btn-primary">Edit</a>
+        {% endif %}
+
+        {% if application.status == 'DRAFT' and can_edit %}
+        <form method="post" action="{% url 'applications:submit' application.pk %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success"
+                onclick="return confirm('Submit this application? You will not be able to edit it after submission.')">Submit
+                Application</button>
+        </form>
+        {% endif %}
+
+        <a href="{% url 'applications:version_history' application.pk %}" class="btn btn-primary">Version History</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Calibration Sessions{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Calibration Sessions</h1>
+    <p class="text-muted">Practice scoring and reach consensus with other reviewers</p>
+</div>
+
+{% if sessions %}
+<div style="display: grid; gap: var(--spacing-lg);">
+    {% for session in sessions %}
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div>
+                <h2 style="margin: 0 0 var(--spacing-sm) 0;">{{ session.name }}</h2>
+                <p class="text-muted">{{ session.description }}</p>
+            </div>
+            {% if session.is_completed %}
+            <span class="status-badge status-approved">Completed</span>
+            {% else %}
+            <span class="status-badge status-submitted">Upcoming</span>
+            {% endif %}
+        </div>
+
+        <div style="margin: var(--spacing-md) 0;">
+            <p><strong>Session Date:</strong> {{ session.session_date|date:"F d, Y H:i" }}</p>
+            <p><strong>Example Application:</strong> {{ session.example_application.title }}</p>
+            {% if session.consensus_score %}
+            <p><strong>Consensus Score:</strong> {{ session.consensus_score }}/100</p>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'reviews:calibration_session' session.pk %}" class="btn btn-primary">
+            {% if session.is_completed %}View Results{% else %}Participate{% endif %}
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card text-center" style="padding: var(--spacing-xl);">
+    <p class="text-muted">No calibration sessions assigned.</p>
+</div>
+{% endif %}
+{% endblock %}

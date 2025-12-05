@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit User - {{ edit_user.username }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h1 class="card-title">Edit User Role</h1>
+
+    <div style="margin-bottom: 2rem; padding: 1rem; background: var(--light-color); border-radius: var(--radius-md);">
+        <p><strong>Username:</strong> {{ edit_user.username }}</p>
+        <p><strong>Email:</strong> {{ edit_user.email }}</p>
+        <p><strong>Name:</strong> {{ edit_user.get_full_name }}</p>
+        <p><strong>Current Role:</strong> <span class="status-badge">{{ edit_user.get_role_display }}</span></p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="role" class="form-label">Change Role To:</label>
+            <select name="role" id="role" class="form-control" required>
+                {% for value, label in role_choices %}
+                <option value="{{ value }}" {% if edit_user.role==value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <p class="text-muted" style="margin-top: 0.5rem; font-size: 0.875rem;">
+                <strong>Note:</strong> Changing a user's role will immediately update their permissions.
+            <ul>
+                <li><strong>Applicant:</strong> Can submit and manage applications.</li>
+                <li><strong>Reviewer:</strong> Can review assigned applications.</li>
+                <li><strong>Admin:</strong> Has full system access including user management.</li>
+            </ul>
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">Update Role</button>
+            <a href="{% url 'user_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

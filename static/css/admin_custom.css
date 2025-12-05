@@ -1,0 +1,289 @@
+/* Custom Django Admin Styling - Professional Theme */
+
+/* Override Django admin colors with our brand colors */
+:root {
+    --primary: #2563eb;
+    --primary-fg: #fff;
+    --body-fg: #1e293b;
+    --body-bg: #f8fafc;
+    --body-quiet-color: #64748b;
+    --body-loud-color: #1e293b;
+    --header-color: #fff;
+    --header-branding-color: #fff;
+    --header-bg: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    --header-link-color: #fff;
+    --breadcrumbs-fg: #64748b;
+    --breadcrumbs-link-fg: #2563eb;
+    --breadcrumbs-bg: #fff;
+    --link-fg: #2563eb;
+    --link-hover-color: #1d4ed8;
+    --link-selected-fg: #1e40af;
+    --hairline-color: #e2e8f0;
+    --border-color: #e2e8f0;
+    --error-fg: #ef4444;
+    --message-success-bg: #d1fae5;
+    --message-warning-bg: #fef3c7;
+    --message-error-bg: #fee2e2;
+    --darkened-bg: #f1f5f9;
+    --selected-bg: #dbeafe;
+    --selected-row: #dbeafe;
+    --button-fg: #fff;
+    --button-bg: #2563eb;
+    --button-hover-bg: #1d4ed8;
+    --default-button-bg: #64748b;
+    --default-button-hover-bg: #475569;
+    --close-button-bg: #ef4444;
+    --close-button-hover-bg: #dc2626;
+    --delete-button-bg: #ef4444;
+    --delete-button-hover-bg: #dc2626;
+    --object-tools-fg: #fff;
+    --object-tools-bg: #2563eb;
+    --object-tools-hover-bg: #1d4ed8;
+}
+
+/* Header improvements */
+#header {
+    background: var(--header-bg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem 2rem;
+}
+
+#branding h1 {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    font-size: 1.75rem;
+}
+
+/* Navigation improvements */
+.module h2,
+.module caption {
+    background: var(--header-bg);
+    color: var(--header-color);
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Table improvements */
+#changelist {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+#changelist table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#changelist thead th {
+    background: var(--darkened-bg);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+}
+
+#changelist tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+#changelist tbody tr:hover {
+    background-color: var(--selected-bg);
+}
+
+/* Form improvements */
+.form-row {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-row:last-child {
+    border-bottom: none;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+input[type="tel"],
+textarea,
+select {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    outline: none;
+}
+
+/* Button improvements */
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button {
+    background: var(--button-bg);
+    color: var(--button-fg);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.submit-row input:hover,
+a.button:hover {
+    background: var(--button-hover-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.button.default,
+input[type="submit"].default {
+    background: var(--default-button-bg);
+}
+
+.button.default:hover,
+input[type="submit"].default:hover {
+    background: var(--default-button-hover-bg);
+}
+
+/* Delete button */
+.deletelink,
+.deletelink-box {
+    background: var(--delete-button-bg) !important;
+}
+
+.deletelink:hover,
+.deletelink-box:hover {
+    background: var(--delete-button-hover-bg) !important;
+}
+
+/* Messages */
+.messagelist li {
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.messagelist .success {
+    background: var(--message-success-bg);
+    color: #065f46;
+    border-left: 4px solid #10b981;
+}
+
+.messagelist .warning {
+    background: var(--message-warning-bg);
+    color: #92400e;
+    border-left: 4px solid #f59e0b;
+}
+
+.messagelist .error {
+    background: var(--message-error-bg);
+    color: #991b1b;
+    border-left: 4px solid #ef4444;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    background: var(--breadcrumbs-bg);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Object tools */
+.object-tools {
+    margin-bottom: 1.5rem;
+}
+
+.object-tools li {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.object-tools a {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+}
+
+/* Pagination */
+.paginator {
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.paginator a,
+.paginator span {
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    margin: 0 0.25rem;
+}
+
+.paginator a:hover {
+    background: var(--selected-bg);
+}
+
+/* Dashboard modules */
+.module {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+/* Filters */
+#changelist-filter {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+#changelist-filter h2 {
+    background: var(--header-bg);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin: -1.5rem -1.5rem 1rem -1.5rem;
+}
+
+#changelist-filter h3 {
+    font-weight: 600;
+    color: var(--body-loud-color);
+    margin-top: 1rem;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    #header {
+        padding: 1rem;
+    }
+
+    #changelist {
+        padding: 1rem;
+    }
+}

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Grant Workflow{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 2rem auto;">
+    <h1 class="card-title">Create Account</h1>
+    <p class="text-muted" style="margin-bottom: 1.5rem;">Register to access the Grant Application System.</p>
+
+    {% if form.errors %}
+    <div class="message message-error" style="margin-bottom: 1rem;">
+        <strong>Please correct the errors below:</strong>
+        <ul style="margin: 0.5rem 0 0 1rem;">
+            {% for field in form %}
+            {% for error in field.errors %}
+            <li>{{ field.label }}: {{ error }}</li>
+            {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_role" class="form-label">Register as *</label>
+            <select name="role" id="id_role" class="form-control" required>
+                <option value="">-- Select Role --</option>
+                <option value="APPLICANT">Applicant</option>
+                <option value="REVIEWER">Reviewer</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+            <small class="text-muted">Choose your role in the system</small>
+        </div>
+
+        <div class="form-group">
+            <label for="id_username" class="form-label">Username *</label>
+            <input type="text" name="username" id="id_username" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_email" class="form-label">Email *</label>
+            <input type="email" name="email" id="id_email" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_first_name" class="form-label">First Name *</label>
+            <input type="text" name="first_name" id="id_first_name" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_last_name" class="form-label">Last Name *</label>
+            <input type="text" name="last_name" id="id_last_name" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_organization" class="form-label">Organization</label>
+            <input type="text" name="organization" id="id_organization" class="form-control"
+                placeholder="Your university or institution">
+        </div>
+
+        <div class="form-group">
+            <label for="id_password1" class="form-label">Password *</label>
+            <input type="password" name="password1" id="id_password1" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_password2" class="form-label">Confirm Password *</label>
+            <input type="password" name="password2" id="id_password2" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+    </form>
+
+    <div style="margin-top: 1.5rem; text-align: center; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <p>Already have an account? <a href="{% url 'login' %}"
+                style="color: var(--primary-color); font-weight: 600;">Login here</a></p>
+    </div>
+</div>
+{% endblock %}

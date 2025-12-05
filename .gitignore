@@ -1,0 +1,50 @@
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media/
+/staticfiles/
+
+# Environment variables
+.env
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+/exports/
+*.zip
+!docs/sample_export.zip
+
+# Test coverage
+.coverage
+coverage.xml
+*.cover

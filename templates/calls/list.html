@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Open Calls for Proposals{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Open Calls for Proposals</h1>
+    <p class="text-muted">Browse available funding opportunities</p>
+</div>
+
+{% if calls %}
+<div style="display: grid; gap: var(--spacing-lg);">
+    {% for call in calls %}
+    <div class="card" style="border-left: 4px solid var(--primary-color);">
+        <div
+            style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-md);">
+            <div style="flex: 1;">
+                <h2 style="margin: 0 0 var(--spacing-sm) 0;">{{ call.title }}</h2>
+                <p class="text-muted" style="margin: 0;">{{ call.description|truncatewords:30 }}</p>
+            </div>
+            <div style="text-align: right; margin-left: var(--spacing-lg);">
+                {% if call.days_until_deadline >= 0 %}
+                <div
+                    style="background: {% if call.days_until_deadline <= 7 %}var(--danger-color){% elif call.days_until_deadline <= 14 %}var(--warning-color){% else %}var(--success-color){% endif %}; color: white; padding: 0.5rem 1rem; border-radius: var(--radius-md); font-weight: 600;">
+                    {{ call.days_until_deadline }} days left
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
+            <div>
+                <strong>Deadline:</strong><br>
+                {{ call.deadline|date:"F d, Y" }}
+            </div>
+            {% if call.funding_amount_min or call.funding_amount_max %}
+            <div>
+                <strong>Funding Range:</strong><br>
+                {% if call.funding_amount_min %}${{ call.funding_amount_min|floatformat:0 }}{% endif %}
+                {% if call.funding_amount_min and call.funding_amount_max %} - {% endif %}
+                {% if call.funding_amount_max %}${{ call.funding_amount_max|floatformat:0 }}{% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; gap: var(--spacing-sm);">
+            <a href="{% url 'calls:detail' call.pk %}" class="btn btn-primary">View Details</a>
+            {% if user.is_authenticated and user.is_applicant %}
+            <a href="{% url 'applications:create' %}?call={{ call.pk }}" class="btn btn-success">Apply Now</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card text-center" style="padding: var(--spacing-xl);">
+    <p class="text-muted">No open calls at this time. Please check back later.</p>
+</div>
+{% endif %}
+{% endblock %}

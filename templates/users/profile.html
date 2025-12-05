@@ -1,0 +1,422 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - {{ user.get_full_name|default:user.username }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .profile-header {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+        color: white;
+        padding: 3rem 2.5rem;
+        border-radius: 24px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+    }
+
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 40%;
+        height: 100%;
+        background: radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .profile-header-content {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        flex-shrink: 0;
+    }
+
+    .profile-info h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .profile-info .role-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .profile-info .joined-date {
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .profile-card h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 1.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .info-item .label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+    }
+
+    .info-item .value {
+        font-size: 1.1rem;
+        color: #1e293b;
+        font-weight: 500;
+    }
+
+    .info-item .value.not-set {
+        color: #94a3b8;
+        font-style: italic;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-item {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-item .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #6366f1;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-item .stat-label {
+        font-size: 0.8rem;
+        color: #64748b;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .expertise-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .expertise-tag {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+        color: #4338ca;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border: 1px solid #c7d2fe;
+    }
+
+    .bio-text {
+        color: #475569;
+        line-height: 1.7;
+        font-size: 1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        color: white;
+    }
+
+    .btn-secondary-modern {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        color: #475569;
+        box-shadow: none;
+    }
+
+    .btn-secondary-modern:hover {
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        color: #334155;
+    }
+
+    .quick-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .quick-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        color: #475569;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .quick-link:hover {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border-color: transparent;
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .quick-link .icon {
+        font-size: 1.5rem;
+    }
+
+    .quick-link .text {
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .profile-header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .profile-info h1 {
+            font-size: 1.5rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            font-size: 2.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-header-content">
+            <div class="profile-avatar">
+                {{ user.first_name|slice:":1"|upper|default:user.username|slice:":1"|upper }}
+            </div>
+            <div class="profile-info">
+                <span class="role-badge">{{ user.get_role_display }}</span>
+                <h1>{{ user.get_full_name|default:user.username }}</h1>
+                <p class="joined-date">📅 Member since {{ user.date_joined|date:"F Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+        {% if user.role == 'APPLICANT' %}
+        <div class="stat-item">
+            <div class="stat-number">{{ user.application_set.count|default:0 }}</div>
+            <div class="stat-label">Applications</div>
+        </div>
+        {% elif user.role == 'REVIEWER' %}
+        <div class="stat-item">
+            <div class="stat-number">{{ user.current_load }}</div>
+            <div class="stat-label">Current Load</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">{{ user.reviewassignment_set.count|default:0 }}</div>
+            <div class="stat-label">Total Reviews</div>
+        </div>
+        {% endif %}
+        <div class="stat-item">
+            <div class="stat-number">{{ user.last_login|timesince|default:"Never" }}</div>
+            <div class="stat-label">Last Login</div>
+        </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="profile-card">
+        <h2>👤 Personal Information</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="label">Username</span>
+                <span class="value">{{ user.username }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Email Address</span>
+                <span class="value">{{ user.email|default:"Not set" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">First Name</span>
+                <span class="value {% if not user.first_name %}not-set{% endif %}">{{ user.first_name|default:"Not set"
+                    }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Last Name</span>
+                <span class="value {% if not user.last_name %}not-set{% endif %}">{{ user.last_name|default:"Not set"
+                    }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Organization</span>
+                <span class="value {% if not user.organization %}not-set{% endif %}">{{ user.organization|default:"Not
+                    set" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Phone</span>
+                <span class="value {% if not user.phone %}not-set{% endif %}">{{ user.phone|default:"Not set" }}</span>
+            </div>
+        </div>
+    </div>
+
+    {% if user.bio %}
+    <!-- Bio Section -->
+    <div class="profile-card">
+        <h2>📝 About Me</h2>
+        <p class="bio-text">{{ user.bio }}</p>
+    </div>
+    {% endif %}
+
+    {% if user.role == 'REVIEWER' and user.expertise_tags %}
+    <!-- Expertise Tags (for Reviewers) -->
+    <div class="profile-card">
+        <h2>🎯 Expertise Areas</h2>
+        <div class="expertise-tags">
+            {% for tag in user.expertise_tags %}
+            <span class="expertise-tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Links -->
+    <div class="profile-card">
+        <h2>⚡ Quick Links</h2>
+        <div class="quick-links">
+            <a href="{% url 'dashboard' %}" class="quick-link">
+                <span class="icon">🏠</span>
+                <span class="text">Dashboard</span>
+            </a>
+            {% if user.role == 'APPLICANT' %}
+            <a href="{% url 'applications:list' %}" class="quick-link">
+                <span class="icon">📄</span>
+                <span class="text">My Applications</span>
+            </a>
+            <a href="{% url 'applications:create' %}" class="quick-link">
+                <span class="icon">➕</span>
+                <span class="text">New Application</span>
+            </a>
+            {% elif user.role == 'REVIEWER' %}
+            <a href="{% url 'reviews:assignment_list' %}" class="quick-link">
+                <span class="icon">📋</span>
+                <span class="text">My Assignments</span>
+            </a>
+            {% elif user.role == 'ADMIN' %}
+            <a href="{% url 'admin:index' %}" class="quick-link">
+                <span class="icon">⚙️</span>
+                <span class="text">Admin Panel</span>
+            </a>
+            <a href="{% url 'reports:dashboard' %}" class="quick-link">
+                <span class="icon">📊</span>
+                <span class="text">Reports</span>
+            </a>
+            {% endif %}
+            <a href="{% url 'notifications:list' %}" class="quick-link">
+                <span class="icon">🔔</span>
+                <span class="text">Notifications</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{% url 'edit_profile' %}" class="btn-modern">✏️ Edit Profile</a>
+        <a href="{% url 'dashboard' %}" class="btn-modern btn-secondary-modern">← Back to Dashboard</a>
+        <a href="{% url 'admin:password_change' %}" class="btn-modern btn-secondary-modern">🔐 Change Password</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+
+{% block title %}Applicant Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-hero {
+        background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+        color: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+    }
+
+    .dashboard-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+        background: radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .dashboard-hero h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .dashboard-hero p {
+        opacity: 0.9;
+        margin: 0;
+        font-size: 1.1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .dashboard-hero .hero-icon {
+        position: absolute;
+        right: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 5rem;
+        opacity: 0.2;
+    }
+
+    .dashboard-hero .user-link {
+        color: #fef08a;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .dashboard-hero .user-link:hover {
+        color: #fef9c3;
+        text-decoration: underline;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: white;
+        border-radius: 16px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--stat-color, #10b981);
+    }
+
+    .stat-box .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-box .stat-title {
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .dashboard-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .dashboard-card h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .table-modern {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table-modern th {
+        background: #f8fafc;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table-modern td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+    }
+
+    .table-modern tr:hover td {
+        background: #fafafa;
+    }
+
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        color: white;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+        border-radius: 6px;
+    }
+
+    .btn-secondary-modern {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        color: #475569;
+        box-shadow: none;
+    }
+
+    .btn-secondary-modern:hover {
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        color: #334155;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .empty-state p {
+        color: #64748b;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-card {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 1px solid #f59e0b;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-card h3 {
+        color: #92400e;
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+    }
+
+    .alert-card p {
+        color: #a16207;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-hero h1 {
+            font-size: 1.5rem;
+        }
+
+        .dashboard-hero .hero-icon {
+            display: none;
+        }
+
+        .card-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="dashboard-hero">
+    <span class="hero-icon">📝</span>
+    <h1>Welcome, <a href="{% url 'profile' %}" class="user-link">{{ user.get_full_name|default:user.username }}</a>!
+    </h1>
+    <p>Track your grant applications and submit new proposals.</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-container">
+    <div class="stat-box" style="--stat-color: #6366f1;">
+        <div class="stat-number">{{ total_count }}</div>
+        <div class="stat-title">Total</div>
+    </div>
+    <div class="stat-box" style="--stat-color: #64748b;">
+        <div class="stat-number">{{ draft_count }}</div>
+        <div class="stat-title">Drafts</div>
+    </div>
+    <div class="stat-box" style="--stat-color: #3b82f6;">
+        <div class="stat-number">{{ submitted_count }}</div>
+        <div class="stat-title">Submitted</div>
+    </div>
+    <div class="stat-box" style="--stat-color: #f59e0b;">
+        <div class="stat-number">{{ under_review_count }}</div>
+        <div class="stat-title">Under Review</div>
+    </div>
+    <div class="stat-box" style="--stat-color: #10b981;">
+        <div class="stat-number">{{ approved_count }}</div>
+        <div class="stat-title">Approved</div>
+    </div>
+    <div class="stat-box" style="--stat-color: #ef4444;">
+        <div class="stat-number">{{ rejected_count }}</div>
+        <div class="stat-title">Rejected</div>
+    </div>
+</div>
+
+{% if revision_requested_count > 0 %}
+<div class="alert-card">
+    <h3>⚠️ Revisions Requested</h3>
+    <p>You have {{ revision_requested_count }} application(s) that require revision. Please review and update them.</p>
+</div>
+{% endif %}
+
+<!-- Applications Table -->
+<div class="dashboard-card">
+    <div class="card-header">
+        <h2>📄 My Applications</h2>
+        <a href="{% url 'applications:create' %}" class="btn-modern">+ New Application</a>
+    </div>
+
+    {% if applications %}
+    <table class="table-modern">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Last Updated</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td><strong>{{ app.title }}</strong></td>
+                <td>
+                    <span class="status-badge 
+                        {% if app.status == 'DRAFT' %}status-draft
+                        {% elif app.status == 'SUBMITTED' %}status-submitted
+                        {% elif app.status == 'UNDER_REVIEW' %}status-under-review
+                        {% elif app.status == 'APPROVED' %}status-approved
+                        {% elif app.status == 'REJECTED' %}status-rejected
+                        {% else %}status-draft{% endif %}">
+                        {{ app.get_status_display }}
+                    </span>
+                </td>
+                <td>{{ app.submitted_at|date:"M d, Y"|default:"Not submitted" }}</td>
+                <td>{{ app.updated_at|date:"M d, Y" }}</td>
+                <td>
+                    <a href="{% url 'applications:detail' app.pk %}" class="btn-modern btn-sm">View</a>
+                    {% if app.status == 'DRAFT' %}
+                    <a href="{% url 'applications:edit' app.pk %}"
+                        class="btn-modern btn-sm btn-secondary-modern">Edit</a>
+                    {% endif %}
+                    {% if app.status == 'REVISION_REQUESTED' %}
+                    <a href="{% url 'applications:edit' app.pk %}" class="btn-modern btn-sm"
+                        style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Revise</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>You haven't created any applications yet.</p>
+        <a href="{% url 'applications:create' %}" class="btn-modern">Create Your First Application</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

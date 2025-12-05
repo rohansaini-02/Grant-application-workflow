@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}User Details - {{ view_user.username }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+        <div>
+            <h1 class="card-title" style="margin-bottom: 0.5rem;">{{ view_user.get_full_name|default:view_user.username
+                }}</h1>
+            <p class="text-muted">{{ view_user.email }}</p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{% url 'user_edit' view_user.pk %}" class="btn btn-primary">Edit Role</a>
+            <a href="{% url 'user_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <div>
+            <h3 style="margin-bottom: 1rem;">Account Information</h3>
+            <table class="table" style="margin-bottom: 0;">
+                <tr>
+                    <th style="width: 150px;">Username</th>
+                    <td>{{ view_user.username }}</td>
+                </tr>
+                <tr>
+                    <th>Role</th>
+                    <td>
+                        <span class="status-badge 
+                            {% if view_user.role == 'ADMIN' %}status-rejected
+                            {% elif view_user.role == 'REVIEWER' %}status-submitted
+                            {% else %}status-approved{% endif %}">
+                            {{ view_user.get_role_display }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Joined</th>
+                    <td>{{ view_user.date_joined|date:"F d, Y" }}</td>
+                </tr>
+                <tr>
+                    <th>Last Login</th>
+                    <td>{{ view_user.last_login|date:"F d, Y H:i"|default:"Never" }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <h3 style="margin-bottom: 1rem;">Profile Details</h3>
+            <table class="table" style="margin-bottom: 0;">
+                <tr>
+                    <th style="width: 150px;">Organization</th>
+                    <td>{{ view_user.organization|default:"Not specified" }}</td>
+                </tr>
+                <tr>
+                    <th>Phone</th>
+                    <td>{{ view_user.phone|default:"Not specified" }}</td>
+                </tr>
+                <tr>
+                    <th>Bio</th>
+                    <td>{{ view_user.bio|default:"No biography provided." }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    {% if applications %}
+    <h3 style="margin-bottom: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">Applications</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.title }}</td>
+                <td><span class="status-badge status-{{ app.status|lower }}">{{ app.get_status_display }}</span></td>
+                <td>{{ app.submitted_at|date:"M d, Y"|default:"Draft" }}</td>
+                <td><a href="{% url 'applications:detail' app.pk %}" class="btn btn-secondary"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if assignments %}
+    <h3 style="margin-bottom: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">Review Assignments
+    </h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Application</th>
+                <th>Status</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assign in assignments %}
+            <tr>
+                <td>{{ assign.application.title }}</td>
+                <td><span class="status-badge">{{ assign.get_status_display }}</span></td>
+                <td>{{ assign.due_date|date:"M d, Y" }}</td>
+                <td><a href="{% url 'reviews:review_interface' assign.pk %}" class="btn btn-secondary"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+{% endblock %}
