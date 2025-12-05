@@ -14,7 +14,7 @@
         <div class="container">
             <div class="navbar-brand">
                 <a href="{% url 'dashboard' %}" class="navbar-item">
-                    <strong>Grant Workflow</strong>
+                    <strong>Grant Application Workflow</strong>
                 </a>
             </div>
 
@@ -45,7 +45,7 @@
                         <span class="badge">{{ unread_count }}</span>
                         {% endif %}
                     </a>
-                    <a href="{% url 'profile' %}" class="navbar-item">{{ user.username }}</a>
+                    <a href="{% url 'profile' %}" class="navbar-item">Profile</a>
                     <form method="post" action="{% url 'logout' %}" style="display: inline; margin: 0;">
                         {% csrf_token %}
                         <button type="submit" class="navbar-item"

@@ -259,8 +259,7 @@
 <!-- Hero Section -->
 <div class="dashboard-hero">
     <span class="hero-icon">📝</span>
-    <h1>Welcome, <a href="{% url 'profile' %}" class="user-link">{{ user.get_full_name|default:user.username }}</a>!
-    </h1>
+    <h1>Welcome, {{ user.get_full_name|default:user.username }}!</h1>
     <p>Track your grant applications and submit new proposals.</p>
 </div>
 

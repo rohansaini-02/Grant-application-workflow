@@ -184,6 +184,30 @@
         color: #475569;
         line-height: 1.7;
         font-size: 1rem;
+        margin: 0;
+    }
+
+    .bio-text.collapsed {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .bio-toggle {
+        color: #6366f1;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: inline-block;
+        transition: color 0.2s;
+    }
+
+    .bio-toggle:hover {
+        color: #4338ca;
+        text-decoration: underline;
     }
 
     .action-buttons {
@@ -329,26 +353,43 @@
             </div>
             <div class="info-item">
                 <span class="label">Email Address</span>
-                <span class="value">{{ user.email|default:"Not set" }}</span>
+                {% if user.email %}
+                <span class="value">{{ user.email }}</span>
+                {% else %}
+                <span class="value not-set">Not provided</span>
+                {% endif %}
             </div>
             <div class="info-item">
                 <span class="label">First Name</span>
-                <span class="value {% if not user.first_name %}not-set{% endif %}">{{ user.first_name|default:"Not set"
-                    }}</span>
+                {% if user.first_name %}
+                <span class="value">{{ user.first_name }}</span>
+                {% else %}
+                <span class="value not-set">Not provided</span>
+                {% endif %}
             </div>
             <div class="info-item">
                 <span class="label">Last Name</span>
-                <span class="value {% if not user.last_name %}not-set{% endif %}">{{ user.last_name|default:"Not set"
-                    }}</span>
+                {% if user.last_name %}
+                <span class="value">{{ user.last_name }}</span>
+                {% else %}
+                <span class="value not-set">Not provided</span>
+                {% endif %}
             </div>
             <div class="info-item">
                 <span class="label">Organization</span>
-                <span class="value {% if not user.organization %}not-set{% endif %}">{{ user.organization|default:"Not
-                    set" }}</span>
+                {% if user.organization %}
+                <span class="value">{{ user.organization }}</span>
+                {% else %}
+                <span class="value not-set">Not provided</span>
+                {% endif %}
             </div>
             <div class="info-item">
                 <span class="label">Phone</span>
-                <span class="value {% if not user.phone %}not-set{% endif %}">{{ user.phone|default:"Not set" }}</span>
+                {% if user.phone %}
+                <span class="value">{{ user.phone }}</span>
+                {% else %}
+                <span class="value not-set">Not provided</span>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -357,8 +398,32 @@
     <!-- Bio Section -->
     <div class="profile-card">
         <h2>📝 About Me</h2>
-        <p class="bio-text">{{ user.bio }}</p>
+        <p class="bio-text collapsed" id="bio-content">{{ user.bio }}</p>
+        <span class="bio-toggle" id="bio-toggle" onclick="toggleBio()">...more</span>
     </div>
+    <script>
+        function toggleBio() {
+            var bioText = document.getElementById('bio-content');
+            var toggleBtn = document.getElementById('bio-toggle');
+            if (bioText.classList.contains('collapsed')) {
+                bioText.classList.remove('collapsed');
+                toggleBtn.textContent = 'Show less';
+            } else {
+                bioText.classList.add('collapsed');
+                toggleBtn.textContent = '...more';
+            }
+        }
+        // Hide toggle if bio is short (less than 2 lines)
+        document.addEventListener('DOMContentLoaded', function () {
+            var bioText = document.getElementById('bio-content');
+            var toggleBtn = document.getElementById('bio-toggle');
+            if (bioText && toggleBtn) {
+                if (bioText.scrollHeight <= bioText.clientHeight + 5) {
+                    toggleBtn.style.display = 'none';
+                }
+            }
+        });
+    </script>
     {% endif %}
 
     {% if user.role == 'REVIEWER' and user.expertise_tags %}
