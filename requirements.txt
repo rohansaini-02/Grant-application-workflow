@@ -13,3 +13,5 @@ pytest-cov>=4.1.0
 django-extensions>=3.2.3
 python-magic-bin>=0.4.14; platform_system == "Windows"
 python-magic>=0.4.27; platform_system != "Windows"
+gunicorn>=21.0.0
+whitenoise>=6.6.0
