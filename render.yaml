@@ -1,0 +1,17 @@
+# render.yaml - Render Blueprint for Django deployment
+services:
+  - type: web
+    name: grant-workflow
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: DATABASE_URL
+        sync: false  # Set this manually from Railway PostgreSQL
+      - key: PORT
+        value: "8000"
