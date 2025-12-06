@@ -114,23 +114,43 @@
     }
 
     .dashboard-card {
-        background: white;
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 20px;
+        padding: 1.75rem;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
         margin-bottom: 1.5rem;
-        border: 1px solid rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(16, 185, 129, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #10b981 0%, #059669 50%, #047857 100%);
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 35px rgba(16, 185, 129, 0.15);
+        transform: translateY(-2px);
     }
 
     .card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e2e8f0;
     }
 
     .dashboard-card h2 {
-        font-size: 1.25rem;
+        font-size: 1.3rem;
         font-weight: 700;
         color: #1e293b;
         margin: 0;
@@ -143,28 +163,52 @@
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .table-modern thead {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     }
 
     .table-modern th {
-        background: #f8fafc;
-        color: #64748b;
-        font-weight: 600;
+        background: transparent;
+        color: #475569;
+        font-weight: 700;
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        padding: 1rem;
+        padding: 1rem 1.25rem;
         text-align: left;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .table-modern tbody tr {
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .table-modern tbody tr:hover {
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        transform: scale(1.01);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
     }
 
     .table-modern td {
-        padding: 1rem;
+        padding: 1.25rem;
         border-bottom: 1px solid #f1f5f9;
         color: #334155;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
     }
 
-    .table-modern tr:hover td {
-        background: #fafafa;
+    .table-modern td:first-child {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .table-modern tbody tr:last-child td {
+        border-bottom: none;
     }
 
     .btn-modern {
@@ -181,12 +225,25 @@
         text-decoration: none;
         transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        cursor: pointer;
     }
 
     .btn-modern:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px) scale(1.02);
         box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
         color: white;
+    }
+
+    .btn-view {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+
+    .btn-view:hover {
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
     }
 
     .btn-sm {
