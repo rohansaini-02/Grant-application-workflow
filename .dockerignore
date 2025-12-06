@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv
+ENV
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Local files
+.env
+*.log
+*.sqlite3
+db.sqlite3
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+
+# Build
+*.egg-info
+dist
+build
+
+# Media & uploads (optional - include if you want to copy existing files)
+# media/
+
+# Documentation
+*.md
+!README.md
