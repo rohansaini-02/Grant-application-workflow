@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
-# System dependencies (required for WeasyPrint & Pillow)
+# System dependencies (required for WeasyPrint, Pillow & python-magic)
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y \
     libpango-1.0-0 \
     libpangocairo-1.0-0 \
     shared-mime-info \
+    libmagic1 \
+    libmagic-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
